@@ -1,0 +1,5 @@
+[
+  { "id": 1, "nome": "Maglietta", "prezzo": 15.00, "img": "", "descrizione": "Cotone 100%" },
+  { "id": 2, "nome": "Cappellino", "prezzo": 10.00, "img": "", "descrizione": "Taglia unica" },
+  { "id": 3, "nome": "Felpa",    "prezzo": 29.90, "img": "", "descrizione": "Unisex" }
+]
