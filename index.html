@@ -5,22 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Negozio Online</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- SDK ufficiale delle Telegram Web Apps -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <h1>🛒 Benvenuto nel mio negozio!</h1>
   <p>Scegli un prodotto dal catalogo qui sotto.</p>
 
-  <div id="catalogo">
-    <div class="prodotto">
-      <h2>Maglietta</h2>
-      <p>€15</p>
-      <button>Compra</button>
-    </div>
-    <div class="prodotto">
-      <h2>Cappellino</h2>
-      <p>€10</p>
-      <button>Compra</button>
-    </div>
-  </div>
+  <div id="catalogo"></div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // usa tutto lo spazio disponibile nell'app Telegram
+
+    async function caricaProdotti() {
+      try {
+        // aggiungo ?v=2 per evitare cache vecchie
+        const res = await fetch('prodotti.json?v=2');
+        const prodotti = await res.json();
+        const container = document.getElementById('catalogo');
+        container.innerHTML = '';
+
+        prodotti.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'prodotto';
+          card.innerHTML = `
+            <h2>${p.nome}</h2>
+            <p class="descrizione">${p.descrizione || ''}</p>
+            <p class="prezzo">€ ${Number(p.prezzo).toFixed(2)}</p>
+            <button class="compra">Compra</button>
+          `;
+
+          card.querySelector('.compra').addEventListener('click', () => {
+            const ordine = {
+              action: 'add_to_cart',
+              productId: p.id,
+              name: p.nome,
+              price: Number(p.prezzo)
+            };
+
+            // Invia i dati al bot
+            tg.sendData(JSON.stringify(ordine));
+
+            // Mostra conferma lato mini-app
+            tg.showAlert(`Hai selezionato: ${p.nome} (€ ${Number(p.prezzo).toFixed(2)})`);
+          });
+
+          container.appendChild(card);
+        });
+      } catch (e) {
+        console.error(e);
+        alert('Errore nel caricamento del catalogo.');
+      }
+    }
+
+    caricaProdotti();
+  </script>
 </body>
 </html>
